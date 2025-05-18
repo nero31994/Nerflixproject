@@ -52,12 +52,30 @@ function displayMovies(movies, clear = false) {
             <img src="${IMG_URL}${movie.poster_path}" alt="${movie.title || movie.name}" loading="lazy">
             <div class="overlay">${movie.title || movie.name}</div>
         `;
-        movieEl.onclick = () => {
-            window.open(`${PROXY_URL}${movie.id}&type=movie`, "_blank");
-        };
+
+        // Open modal instead of redirect
+        movieEl.onclick = () => openModal(movie);
 
         moviesDiv.appendChild(movieEl);
     });
+}
+
+// Modal functions
+function openModal(movie) {
+    document.getElementById("modalTitle").innerText = movie.title || movie.name;
+    document.getElementById("modalOverview").innerText = movie.overview || '';
+    document.getElementById("modalRelease").innerText = movie.release_date ? `Release: ${movie.release_date}` : '';
+    document.getElementById("modalRating").innerText = movie.vote_average ? `Rating: ${movie.vote_average}` : '';
+
+    const watchBtn = document.getElementById("watchNow");
+    watchBtn.dataset.id = movie.id;
+    watchBtn.dataset.type = "movie"; // or dynamically set for TV shows
+
+    document.getElementById("movieModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("movieModal").style.display = "none";
 }
 
 // Search function with debounce
