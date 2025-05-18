@@ -1,85 +1,93 @@
-const API_KEY = '488eb36776275b8ae18600751059fb49';
-const IMG_URL = 'https://image.tmdb.org/t/p/w500';
-const PROXY_URL = 'https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=';
+const API_KEY = "f81d3f9bca0b5c7e59b727f3a24490dd";
+const PROXY_URL = "https://nerflixprox.arenaofvalorph937.workers.dev/proxy";
 
-let currentPage = 1;
-let currentQuery = '';
-let isFetching = false;
-let timeout = null;
+const moviesContainer = document.getElementById("movies");
+const loadingEl = document.getElementById("loading");
+const errorEl = document.getElementById("error");
 
-// Fetch movies
-async function fetchMovies(query = '', page = 1) {
-    if (isFetching) return;
-    isFetching = true;
-    document.getElementById("loading").style.display = "block";
+let debounceTimer;
 
-    let url = query
-        ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
-        : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${page}`;
+// Fetch popular movies on load
+window.onload = () => {
+  fetchMovies();
+};
 
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-        document.getElementById("loading").style.display = "none";
-
-        if (!data.results || data.results.length === 0) {
-            document.getElementById("error").innerText = "No results found!";
-            return;
-        }
-
-        document.getElementById("error").innerText = "";
-        displayMovies(data.results, page === 1);
-    } catch (err) {
-        document.getElementById("error").innerText = "Error fetching data!";
-        document.getElementById("loading").style.display = "none";
-    } finally {
-        isFetching = false;
-    }
-}
-
-// Display movies
-function displayMovies(movies, clear = false) {
-    const moviesDiv = document.getElementById("movies");
-
-    if (clear) moviesDiv.innerHTML = "";
-
-    movies.forEach(movie => {
-        if (!movie.poster_path) return;
-
-        const movieEl = document.createElement("div");
-        movieEl.classList.add("movie");
-        movieEl.innerHTML = `
-            <img src="${IMG_URL}${movie.poster_path}" alt="${movie.title || movie.name}" loading="lazy">
-            <div class="overlay">${movie.title || movie.name}</div>
-        `;
-        movieEl.onclick = () => {
-            window.open(`${PROXY_URL}${movie.id}&type=movie`, "_blank"); // type=movie added
-        };
-
-        moviesDiv.appendChild(movieEl);
-    });
-}
-
-// Search function with debounce
+// Debounce search input
 function debounceSearch() {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-        const query = document.getElementById("search").value.trim();
-        if (query.length > 2) {
-            currentQuery = query;
-            currentPage = 1;
-            fetchMovies(currentQuery, currentPage);
-        }
-    }, 300);
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const query = document.getElementById("search").value.trim();
+    if (query) {
+      searchMovies(query);
+    } else {
+      fetchMovies();
+    }
+  }, 400);
 }
 
-// Infinite Scroll
-window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        currentPage++;
-        fetchMovies(currentQuery, currentPage);
-    }
-});
+// Fetch popular movies from TMDB
+async function fetchMovies() {
+  loadingEl.style.display = "block";
+  errorEl.textContent = "";
+  moviesContainer.innerHTML = "";
 
-// Load initial movies
-fetchMovies();
+  try {
+    const response = await fetch(
+      `${PROXY_URL}?url=https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=1`
+    );
+    const data = await response.json();
+    loadingEl.style.display = "none";
+    displayMovies(data.results);
+  } catch (error) {
+    loadingEl.style.display = "none";
+    errorEl.textContent = "Failed to load movies.";
+  }
+}
+
+// Search movies by query
+async function searchMovies(query) {
+  loadingEl.style.display = "block";
+  errorEl.textContent = "";
+  moviesContainer.innerHTML = "";
+
+  try {
+    const response = await fetch(
+      `${PROXY_URL}?url=https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(
+        query
+      )}&page=1&include_adult=false`
+    );
+    const data = await response.json();
+    loadingEl.style.display = "none";
+    if (data.results.length === 0) {
+      errorEl.textContent = "No results found.";
+    } else {
+      displayMovies(data.results);
+    }
+  } catch (error) {
+    loadingEl.style.display = "none";
+    errorEl.textContent = "Search failed.";
+  }
+}
+
+// Display movies grid
+function displayMovies(movies) {
+  moviesContainer.innerHTML = "";
+
+  movies.forEach((movie) => {
+    const movieEl = document.createElement("div");
+    movieEl.classList.add("movie");
+
+    const posterPath = movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : "https://via.placeholder.com/500x750?text=No+Image";
+
+    movieEl.innerHTML = `
+      <img src="${posterPath}" alt="${movie.title || movie.name}" />
+      <div class="overlay">${movie.title || movie.name}</div>
+    `;
+
+    movieEl.addEventListener("click", () => openModal(movie));
+
+    moviesContainer.appendChild(movieEl);
+  });
+}
