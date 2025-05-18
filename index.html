@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Movie Site</title>
   <link rel="stylesheet" href="styles.css" />
-
-  
 </head>
 <body>
-  
+
+  <!-- Background Overlay -->
+  <div class="background-overlay"></div>
 
   <!-- Header -->
   <header class="top-menu">
@@ -20,7 +20,7 @@
   </header>
 
   <!-- Loading & Movies Grid -->
-  <p id="loading" class="loading">Loading...</p>
+  <p id="loading" class="loading" style="display:none;">Loading...</p>
   <div id="movies" class="grid"></div>
   <p id="error" class="error"></p>
 
@@ -37,20 +37,20 @@
   </div>
 
   <!-- Embedded Player Container -->
-  <div id="playerContainer" style="display:none;">
+  <div id="playerContainer" style="display:none; position:relative;">
     <iframe id="videoFrame" style="width:100%; height:90vh; border:none;" allowfullscreen></iframe>
-    <button onclick="closePlayer()" style="position:absolute; top:10px; right:10px; z-index:999;">Close Player</button>
+    <button onclick="closePlayer()" style="position:absolute; top:10px; right:10px; z-index:999; background:#ff5757; border:none; color:#fff; padding:8px 12px; border-radius:5px; cursor:pointer;">Close Player</button>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Called when clicking "Watch Now"
+    // Handle Watch Now button click to open embedded player
     document.getElementById("watchNow").addEventListener("click", () => {
       const movieId = document.getElementById("watchNow").dataset.id;
       const movieType = document.getElementById("watchNow").dataset.type;
 
       const iframe = document.getElementById("videoFrame");
-      iframe.src = `https://https://nerflixprox.arenaofvalorph937.workers.dev/?id=${movieId}&type=${movieType}`;
+      iframe.src = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}&type=${movieType}`;
 
       document.getElementById("movieModal").style.display = "none";
       document.getElementById("playerContainer").style.display = "block";
@@ -62,16 +62,20 @@
       document.getElementById("playerContainer").style.display = "none";
     }
 
-    // Example of setting movieId and type in script.js
+    // Open modal and fill movie info
     function openModal(movie) {
-      document.getElementById("modalTitle").innerText = movie.title;
-      document.getElementById("modalOverview").innerText = movie.overview;
-      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
-      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
+      document.getElementById("modalTitle").innerText = movie.title || movie.name;
+      document.getElementById("modalOverview").innerText = movie.overview || "No description available.";
+      document.getElementById("modalRelease").innerText = movie.release_date ? `Release: ${movie.release_date}` : "";
+      document.getElementById("modalRating").innerText = movie.vote_average ? `Rating: ${movie.vote_average}` : "";
       const watchBtn = document.getElementById("watchNow");
       watchBtn.dataset.id = movie.id;
-      watchBtn.dataset.type = "movie"; // or "episode" dynamically
+      watchBtn.dataset.type = "movie"; // could be dynamic later
       document.getElementById("movieModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("movieModal").style.display = "none";
     }
   </script>
 </body>
