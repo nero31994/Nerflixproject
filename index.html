@@ -2,14 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Site</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Basic modal & player styles for clarity */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      overflow: auto;
+    }
+    .modal-content {
+      background: #111;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      color: #fff;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      right: 15px; top: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #playerContainer {
+      display: none;
+      position: fixed;
+      z-index: 1100;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000;
+    }
+    #playerContainer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #playerContainer button {
+      position: absolute;
+      top: 15px; right: 15px;
+      z-index: 1200;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 18px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-
-  <!-- Background Overlay -->
-  <div class="background-overlay"></div>
 
   <!-- Header -->
   <header class="top-menu">
@@ -20,11 +69,11 @@
   </header>
 
   <!-- Loading & Movies Grid -->
-  <p id="loading" class="loading" style="display:none;">Loading...</p>
+  <p id="loading" class="loading">Loading...</p>
   <div id="movies" class="grid"></div>
   <p id="error" class="error"></p>
 
-  <!-- Modal -->
+  <!-- Movie Info Modal -->
   <div id="movieModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
@@ -37,14 +86,34 @@
   </div>
 
   <!-- Embedded Player Container -->
-  <div id="playerContainer" style="display:none; position:relative;">
-    <iframe id="videoFrame" style="width:100%; height:90vh; border:none;" allowfullscreen></iframe>
-    <button onclick="closePlayer()" style="position:absolute; top:10px; right:10px; z-index:999; background:#ff5757; border:none; color:#fff; padding:8px 12px; border-radius:5px; cursor:pointer;">Close Player</button>
+  <div id="playerContainer">
+    <iframe id="videoFrame" allowfullscreen></iframe>
+    <button onclick="closePlayer()">Close Player</button>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Handle Watch Now button click to open embedded player
+    // Open modal function called from script.js when clicking a movie
+    function openModal(movie) {
+      document.getElementById("modalTitle").innerText = movie.title || movie.name;
+      document.getElementById("modalOverview").innerText = movie.overview || '';
+      document.getElementById("modalRelease").innerText = movie.release_date ? `Release: ${movie.release_date}` : '';
+      document.getElementById("modalRating").innerText = movie.vote_average ? `Rating: ${movie.vote_average}` : '';
+
+      // Store id and type on watch button
+      const watchBtn = document.getElementById("watchNow");
+      watchBtn.dataset.id = movie.id;
+      watchBtn.dataset.type = "movie"; // or "tv" if you want to support TV shows
+
+      document.getElementById("movieModal").style.display = "block";
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById("movieModal").style.display = "none";
+    }
+
+    // Watch now button opens iframe player with proxy URL inside page (no redirect)
     document.getElementById("watchNow").addEventListener("click", () => {
       const movieId = document.getElementById("watchNow").dataset.id;
       const movieType = document.getElementById("watchNow").dataset.type;
@@ -52,30 +121,15 @@
       const iframe = document.getElementById("videoFrame");
       iframe.src = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}&type=${movieType}`;
 
-      document.getElementById("movieModal").style.display = "none";
+      closeModal();
       document.getElementById("playerContainer").style.display = "block";
     });
 
+    // Close the player and stop video
     function closePlayer() {
       const iframe = document.getElementById("videoFrame");
-      iframe.src = ""; // Stop the video
+      iframe.src = "";
       document.getElementById("playerContainer").style.display = "none";
-    }
-
-    // Open modal and fill movie info
-    function openModal(movie) {
-      document.getElementById("modalTitle").innerText = movie.title || movie.name;
-      document.getElementById("modalOverview").innerText = movie.overview || "No description available.";
-      document.getElementById("modalRelease").innerText = movie.release_date ? `Release: ${movie.release_date}` : "";
-      document.getElementById("modalRating").innerText = movie.vote_average ? `Rating: ${movie.vote_average}` : "";
-      const watchBtn = document.getElementById("watchNow");
-      watchBtn.dataset.id = movie.id;
-      watchBtn.dataset.type = "movie"; // could be dynamic later
-      document.getElementById("movieModal").style.display = "block";
-    }
-
-    function closeModal() {
-      document.getElementById("movieModal").style.display = "none";
     }
   </script>
 </body>
