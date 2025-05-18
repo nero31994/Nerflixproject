@@ -41,7 +41,7 @@ async function fetchMovies(query = '', page = 1) {
 function displayMovies(movies, clear = false) {
     const moviesDiv = document.getElementById("movies");
 
-    if (clear) moviesDiv.innerHTML = ""; // Clear previous results when searching
+    if (clear) moviesDiv.innerHTML = "";
 
     movies.forEach(movie => {
         if (!movie.poster_path) return;
@@ -53,7 +53,7 @@ function displayMovies(movies, clear = false) {
             <div class="overlay">${movie.title || movie.name}</div>
         `;
         movieEl.onclick = () => {
-            window.open(`${PROXY_URL}${movie.id}`, "_blank");
+            window.open(`${PROXY_URL}${movie.id}&type=movie`, "_blank"); // type=movie added
         };
 
         moviesDiv.appendChild(movieEl);
