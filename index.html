@@ -11,19 +11,11 @@
   <!-- Header -->
   <header class="top-menu">
     <img src="https://i.ibb.co/bMzZ1wYN/NEROFLIX-2-20-2025.png" alt="Logo" class="logo" />
-    
     <div class="search-container">
       <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
     </div>
   </header>
-<div class="category-bar">
-  <button onclick="changeCategory('popular')">Popular</button>
-  <button onclick="changeCategory('now_playing')">Latest</button>
-  <button onclick="changeCategory('top_rated')">Top Rated</button>
-  <button onclick="changeCategory('upcoming')">Upcoming</button>
-</div>
 
-<div id="movie-grid" class="grid"></div>
   <!-- Loading & Movie Grid -->
   <p id="loading" class="loading">Loading...</p>
   <div id="movies" class="grid"></div>
@@ -44,7 +36,7 @@
   <!-- Embedded Player -->
   <div id="playerContainer" style="display:none;">
     <iframe id="videoFrame" allowfullscreen></iframe>
-    <button onclick="closePlayer()">Close</button>
+    <button onclick="closePlayer()">Close Player</button>
   </div>
 
   <script src="script.js"></script>
