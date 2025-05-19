@@ -11,17 +11,17 @@
   <!-- Header -->
   <header class="top-menu">
     <img src="https://i.ibb.co/bMzZ1wYN/NEROFLIX-2-20-2025.png" alt="Logo" class="logo" />
-    <div class="category-bar">
+    
+    <div class="search-container">
+      <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
+    </div>
+  </header>
+<div class="category-bar">
   <button onclick="changeCategory('popular')">Popular</button>
   <button onclick="changeCategory('now_playing')">Latest</button>
   <button onclick="changeCategory('top_rated')">Top Rated</button>
   <button onclick="changeCategory('upcoming')">Upcoming</button>
 </div>
-    <div class="search-container">
-      <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
-    </div>
-  </header>
-
 
 <div id="movie-grid" class="grid"></div>
   <!-- Loading & Movie Grid -->
