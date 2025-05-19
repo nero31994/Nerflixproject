@@ -6,6 +6,7 @@ let currentPage = 1;
 let currentQuery = '';
 let isFetching = false;
 let timeout = null;
+let currentCategory = 'popular'; // Default category
 
 // Fetch movies
 async function fetchMovies(query = '', page = 1) {
@@ -15,7 +16,7 @@ async function fetchMovies(query = '', page = 1) {
 
     let url = query
         ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
-        : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${page}`;
+        : `https://api.themoviedb.org/3/movie/${currentCategory}?api_key=${API_KEY}&page=${page}`;
 
     try {
         const res = await fetch(url);
@@ -52,15 +53,12 @@ function displayMovies(movies, clear = false) {
             <div class="overlay">${movie.title || movie.name}</div>
         `;
 
-        movieEl.onclick = () => {
-            openModal(movie);
-        };
-
+        movieEl.onclick = () => openModal(movie);
         moviesDiv.appendChild(movieEl);
     });
 }
 
-// Open modal with movie info
+// Modal
 function openModal(movie) {
     document.getElementById("modalTitle").innerText = movie.title;
     document.getElementById("modalOverview").innerText = movie.overview;
@@ -71,19 +69,8 @@ function openModal(movie) {
     watchBtn.dataset.id = movie.id;
     watchBtn.dataset.type = "movie";
 
-    const modal = document.getElementById("movieModal");
-    modal.style.display = "flex";
-    document.body.style.overflow = "hidden"; // Disable background scroll
+    document.getElementById("movieModal").style.display = "block";
 }
-
-// Close modal
-function closeModal() {
-    document.getElementById("movieModal").style.display = "none";
-    document.body.style.overflow = ""; // Re-enable scroll
-}
-
-// Bind close button (make sure the close button has id="closeModal" in your HTML)
-document.getElementById("closeModal").addEventListener("click", closeModal);
 
 // Debounced search
 function debounceSearch() {
@@ -106,7 +93,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Watch Now handler
+// Watch Now
 document.getElementById("watchNow").addEventListener("click", () => {
     const movieId = document.getElementById("watchNow").dataset.id;
     const movieType = document.getElementById("watchNow").dataset.type;
@@ -114,7 +101,7 @@ document.getElementById("watchNow").addEventListener("click", () => {
     const iframe = document.getElementById("videoFrame");
     iframe.src = `${PROXY_URL}${movieId}&type=${movieType}`;
 
-    closeModal(); // Close modal cleanly
+    document.getElementById("movieModal").style.display = "none";
     document.getElementById("playerContainer").style.display = "block";
 });
 
@@ -125,13 +112,14 @@ function closePlayer() {
     document.getElementById("playerContainer").style.display = "none";
 }
 
-// Load initial movies
-fetchMovies().then(() => {
-    const checkAndLoad = () => {
-        if (document.body.scrollHeight <= window.innerHeight) {
-            currentPage++;
-            fetchMovies(currentQuery, currentPage).then(checkAndLoad);
-        }
-    };
-    checkAndLoad();
-});
+// Category switcher
+function changeCategory(category) {
+    currentCategory = category;
+    currentQuery = '';
+    currentPage = 1;
+    document.getElementById("search").value = '';
+    fetchMovies('', currentPage);
+}
+
+// Initial load
+fetchMovies();
