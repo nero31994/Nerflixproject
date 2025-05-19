@@ -71,8 +71,19 @@ function openModal(movie) {
     watchBtn.dataset.id = movie.id;
     watchBtn.dataset.type = "movie";
 
-    document.getElementById("movieModal").style.display = "block";
+    const modal = document.getElementById("movieModal");
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden"; // Disable background scroll
 }
+
+// Close modal
+function closeModal() {
+    document.getElementById("movieModal").style.display = "none";
+    document.body.style.overflow = ""; // Re-enable scroll
+}
+
+// Bind close button (make sure the close button has id="closeModal" in your HTML)
+document.getElementById("closeModal").addEventListener("click", closeModal);
 
 // Debounced search
 function debounceSearch() {
@@ -103,7 +114,7 @@ document.getElementById("watchNow").addEventListener("click", () => {
     const iframe = document.getElementById("videoFrame");
     iframe.src = `${PROXY_URL}${movieId}&type=${movieType}`;
 
-    document.getElementById("movieModal").style.display = "none";
+    closeModal(); // Close modal cleanly
     document.getElementById("playerContainer").style.display = "block";
 });
 
@@ -114,7 +125,7 @@ function closePlayer() {
     document.getElementById("playerContainer").style.display = "none";
 }
 
-// Load initial movies with auto-scroll fix for desktop
+// Load initial movies
 fetchMovies().then(() => {
     const checkAndLoad = () => {
         if (document.body.scrollHeight <= window.innerHeight) {
