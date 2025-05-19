@@ -49,44 +49,39 @@
 
   <script src="script.js"></script>
   <script>
-  // Watch Now button logic
-  document.getElementById("watchNow").addEventListener("click", () => {
-    const movieId = document.getElementById("watchNow").dataset.id;
-    const movieType = document.getElementById("watchNow").dataset.type;
+    // Watch Now button logic
+    document.getElementById("watchNow").addEventListener("click", () => {
+      const movieId = document.getElementById("watchNow").dataset.id;
+      const movieType = document.getElementById("watchNow").dataset.type;
 
-    const iframe = document.getElementById("videoFrame");
-    iframe.src = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}&type=${movieType}`;
+      const iframe = document.getElementById("videoFrame");
+      iframe.src = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}&type=${movieType}`;
 
-    document.getElementById("movieModal").style.display = "none";
-    document.getElementById("playerContainer").style.display = "flex";
-    document.body.style.overflow = ""; // Re-enable scroll after modal closes
-  });
+      document.getElementById("movieModal").style.display = "none";
+      document.getElementById("playerContainer").style.display = "flex";
+    });
 
-  function closePlayer() {
-    const iframe = document.getElementById("videoFrame");
-    iframe.src = "";
-    document.getElementById("playerContainer").style.display = "none";
-  }
+    function closePlayer() {
+      const iframe = document.getElementById("videoFrame");
+      iframe.src = "";
+      document.getElementById("playerContainer").style.display = "none";
+    }
 
-  // Show movie details in modal
-  function openModal(movie) {
-    document.getElementById("modalTitle").innerText = movie.title;
-    document.getElementById("modalOverview").innerText = movie.overview;
-    document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
-    document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
-    
-    const watchBtn = document.getElementById("watchNow");
-    watchBtn.dataset.id = movie.id;
-    watchBtn.dataset.type = "movie";
+    // Show movie details in modal
+    function openModal(movie) {
+      document.getElementById("modalTitle").innerText = movie.title;
+      document.getElementById("modalOverview").innerText = movie.overview;
+      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
+      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
+      const watchBtn = document.getElementById("watchNow");
+      watchBtn.dataset.id = movie.id;
+      watchBtn.dataset.type = "movie";
+      document.getElementById("movieModal").style.display = "block";
+    }
 
-    document.getElementById("movieModal").style.display = "flex";
-    document.body.style.overflow = "hidden"; // Disable background scroll
-  }
-
-  function closeModal() {
-    document.getElementById("movieModal").style.display = "none";
-    document.body.style.overflow = ""; // Re-enable scroll
-  }
-</script>
+    function closeModal() {
+      document.getElementById("movieModal").style.display = "none";
+    }
+  </script>
 </body>
 </html>
