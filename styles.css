@@ -40,7 +40,25 @@ a {
   background-color: #222;
   color: white;
 }
+.category-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 10px;
+}
 
+.category-bar button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #111;
+  color: white;
+  cursor: pointer;
+}
+
+.category-bar button:hover {
+  background: #333;
+}
 /* Grid */
 .grid {
   display: grid;
