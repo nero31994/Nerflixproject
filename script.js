@@ -6,7 +6,6 @@ let currentPage = 1;
 let currentQuery = '';
 let isFetching = false;
 let timeout = null;
-let currentCategory = 'popular'; // Default category
 
 // Fetch movies
 async function fetchMovies(query = '', page = 1) {
@@ -16,7 +15,7 @@ async function fetchMovies(query = '', page = 1) {
 
     let url = query
         ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
-        : `https://api.themoviedb.org/3/movie/${currentCategory}?api_key=${API_KEY}&page=${page}`;
+        : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${page}`;
 
     try {
         const res = await fetch(url);
@@ -41,6 +40,7 @@ async function fetchMovies(query = '', page = 1) {
 // Display movies
 function displayMovies(movies, clear = false) {
     const moviesDiv = document.getElementById("movies");
+
     if (clear) moviesDiv.innerHTML = "";
 
     movies.forEach(movie => {
@@ -53,12 +53,15 @@ function displayMovies(movies, clear = false) {
             <div class="overlay">${movie.title || movie.name}</div>
         `;
 
-        movieEl.onclick = () => openModal(movie);
+        movieEl.onclick = () => {
+            openModal(movie);
+        };
+
         moviesDiv.appendChild(movieEl);
     });
 }
 
-// Modal
+// Open modal with movie info
 function openModal(movie) {
     document.getElementById("modalTitle").innerText = movie.title;
     document.getElementById("modalOverview").innerText = movie.overview;
@@ -93,7 +96,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Watch Now
+// Watch Now handler
 document.getElementById("watchNow").addEventListener("click", () => {
     const movieId = document.getElementById("watchNow").dataset.id;
     const movieType = document.getElementById("watchNow").dataset.type;
@@ -112,14 +115,5 @@ function closePlayer() {
     document.getElementById("playerContainer").style.display = "none";
 }
 
-// Category switcher
-function changeCategory(category) {
-    currentCategory = category;
-    currentQuery = '';
-    currentPage = 1;
-    document.getElementById("search").value = '';
-    fetchMovies('', currentPage);
-}
-
-// Initial load
+// Load initial movies
 fetchMovies();
