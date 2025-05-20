@@ -3,39 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NeroFlix</title>
+  <title>Neroflix</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <input type="text" id="search" placeholder="Search for a movie..." />
 
-  <div id="movies" class="movie-grid">
-    <!-- Movie cards will be inserted here by JavaScript -->
-  </div>
+  <!-- Header -->
+  <header class="top-menu">
+    <img src="https://i.ibb.co/bMzZ1wYN/NEROFLIX-2-20-2025.png" alt="Logo" class="logo" />
+    <div class="search-container">
+      <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
+    </div>
+  </header>
 
-  <!-- Modal for movie details and trailer -->
-  <div id="modal" class="modal">
+  <!-- Loading & Movie Grid -->
+  <p id="loading" class="loading">Loading...</p>
+  <div id="movies" class="grid"></div>
+  <p id="error" class="error"></p>
+
+  <!-- Modal -->
+  <div id="movieModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
-      <h2 id="modalTitle">Movie Title</h2>
-      <p id="modalOverview">Movie overview will go here...</p>
-      <p id="modalRelease">Release Date: </p>
-      <p id="modalRating">Rating: </p>
-      <iframe id="modalTrailer" allowfullscreen></iframe>
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalOverview"></p>
+      <p id="modalRelease"></p>
+      <p id="modalRating"></p>
       <button id="watchNow">Watch Now</button>
     </div>
   </div>
 
-  <!-- Fullscreen video player container -->
-  <div id="playerContainer" style="display: none;">
-    <iframe id="videoPlayer" allowfullscreen></iframe>
-    <button onclick="document.getElementById('playerContainer').style.display='none'">Close</button>
-  </div>
-
-  <!-- Optional loading or error messages -->
-  <div class="loading" style="display: none;">Loading movies...</div>
-  <div class="error" style="display: none;">Something went wrong. Please try again.</div>
-
   <script src="script.js"></script>
+  <script>
+    // Watch Now button: redirect to your proxy URL
+    document.getElementById("watchNow").addEventListener("click", () => {
+      const movieId = document.getElementById("watchNow").dataset.id;
+      window.location.href = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}`;
+    });
+
+    // Show movie details in modal
+    function openModal(movie) {
+      document.getElementById("modalTitle").innerText = movie.title;
+      document.getElementById("modalOverview").innerText = movie.overview;
+      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
+      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
+      const watchBtn = document.getElementById("watchNow");
+      watchBtn.dataset.id = movie.id;
+      document.getElementById("movieModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("movieModal").style.display = "none";
+    }
+  </script>
 </body>
 </html>
