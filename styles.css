@@ -1,170 +1,115 @@
-/* Reset & Base Styles */
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0d0d0d;
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #111;
   color: #fff;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Header */
 .top-menu {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #111;
-  padding: 10px 20px;
+  padding: 1rem;
+  background: rgba(0,0,0,0.7);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 10;
+  backdrop-filter: blur(10px);
 }
 
 .logo {
   height: 40px;
 }
 
-.search-container {
-  flex: 1;
-  text-align: right;
-}
-
 .search-container input {
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 10px;
   border: none;
-  width: 220px;
-  background-color: #222;
-  color: white;
+  border-radius: 20px;
+  width: 250px;
+  background: #222;
+  color: #fff;
 }
 
-/* Grid */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 0.7rem 1.5rem;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.tab:hover,
+.tab.active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
 }
 
-.movie {
-  position: relative;
-  cursor: pointer;
+.movie-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
   overflow: hidden;
-  border-radius: 8px;
-  transition: transform 0.2s;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.movie img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 8px;
-}
-
-.movie:hover {
+.movie-card:hover {
   transform: scale(1.05);
 }
 
-.movie .overlay {
-  position: absolute;
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+.movie-card img {
   width: 100%;
-  padding: 8px;
-  text-align: center;
-  font-weight: bold;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
 }
 
-/* Modal */
 .modal {
   display: none;
   position: fixed;
-  z-index: 500;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.85);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-  background-color: #1a1a1a;
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid #333;
-  width: 90%;
-  max-width: 500px;
+  background: #222;
+  padding: 2rem;
   border-radius: 10px;
-  color: #fff;
-  position: relative;
-}
-
-.close {
-  color: #aaa;
-  position: absolute;
-  top: 10px;
-  right: 16px;
-  font-size: 28px;
-  cursor: pointer;
-}
-
-#watchNow {
-  background-color: #e50914;
+  max-width: 600px;
+  width: 90%;
   color: white;
-  padding: 10px 20px;
-  margin-top: 20px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: bold;
 }
 
-#watchNow:hover {
-  background-color: #f40612;
-}
-
-/* Player Container */
-#playerContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: #000;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-}
-
-#playerContainer iframe {
-  flex: 1;
-}
-
-#playerContainer button {
+.modal .close {
   position: absolute;
   top: 15px;
-  right: 20px;
-  z-index: 1000;
-  background: #e50914;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 20px;
+  right: 30px;
+  font-size: 30px;
   cursor: pointer;
-  font-weight: bold;
 }
 
-#playerContainer button:hover {
-  background-color: #f40612;
-}
-
-/* Loading & Error */
-.loading, .error {
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
+button#watchNow {
+  background: red;
+  color: white;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
