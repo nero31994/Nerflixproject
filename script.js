@@ -40,7 +40,6 @@ async function fetchMovies(query = '', page = 1) {
 // Display movies
 function displayMovies(movies, clear = false) {
     const moviesDiv = document.getElementById("movies");
-
     if (clear) moviesDiv.innerHTML = "";
 
     movies.forEach(movie => {
@@ -115,5 +114,13 @@ function closePlayer() {
     document.getElementById("playerContainer").style.display = "none";
 }
 
-// Load initial movies
-fetchMovies();
+// Load initial movies with auto-scroll fix for desktop
+fetchMovies().then(() => {
+    const checkAndLoad = () => {
+        if (document.body.scrollHeight <= window.innerHeight) {
+            currentPage++;
+            fetchMovies(currentQuery, currentPage).then(checkAndLoad);
+        }
+    };
+    checkAndLoad();
+});
