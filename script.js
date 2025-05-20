@@ -1,6 +1,6 @@
 const API_KEY = '488eb36776275b8ae18600751059fb49';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
-const PROXY_URL = 'https://nerflixprox.arenaofvalorph937.workers.dev/?id=';
+const PROXY_URL = 'https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=';
 
 let currentPage = 1;
 let currentQuery = '';
@@ -22,6 +22,7 @@ async function fetchMovies(query = '', page = 1) {
     document.getElementById("loading").style.display = "none";
 
     if (!data.results || data.results.length === 0) {
+      if (page === 1) document.getElementById("movies").innerHTML = "";
       document.getElementById("error").innerText = "No results found!";
       return;
     }
@@ -55,18 +56,21 @@ function displayMovies(movies, clear = false) {
 }
 
 function openModal(movie) {
-  document.getElementById("modalTitle").innerText = movie.title;
+  document.getElementById("modalTitle").innerText = movie.title || movie.name;
   document.getElementById("modalOverview").innerText = movie.overview;
-  document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
-  document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
-  const watchBtn = document.getElementById("watchNow");
-  watchBtn.dataset.id = movie.id;
-  watchBtn.dataset.type = "movie";
-  document.getElementById("movieModal").style.display = "block";
+  document.getElementById("modalRelease").innerText = `Release: ${movie.release_date || 'N/A'}`;
+  document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average || 'N/A'}`;
+  
+  const iframe = document.getElementById("videoFrame");
+  iframe.src = `${PROXY_URL}${movie.id}`;
+
+  document.getElementById("movieModal").style.display = "flex";
 }
 
 function closeModal() {
   document.getElementById("movieModal").style.display = "none";
+  const iframe = document.getElementById("videoFrame");
+  iframe.src = "";
 }
 
 function debounceSearch() {
@@ -77,6 +81,10 @@ function debounceSearch() {
       currentQuery = query;
       currentPage = 1;
       fetchMovies(currentQuery, currentPage);
+    } else if (query.length === 0) {
+      currentQuery = '';
+      currentPage = 1;
+      fetchMovies();
     }
   }, 300);
 }
@@ -88,21 +96,7 @@ window.addEventListener('scroll', () => {
   }
 });
 
-document.getElementById("watchNow").addEventListener("click", () => {
-  const movieId = document.getElementById("watchNow").dataset.id;
-  const movieType = document.getElementById("watchNow").dataset.type;
-  const iframe = document.getElementById("videoFrame");
-  iframe.src = `${PROXY_URL}${movieId}&type=${movieType}`;
-  document.getElementById("movieModal").style.display = "none";
-  document.getElementById("playerContainer").style.display = "block";
-});
-
-function closePlayer() {
-  const iframe = document.getElementById("videoFrame");
-  iframe.src = "";
-  document.getElementById("playerContainer").style.display = "none";
-}
-
+// Initial fetch & auto-load more if page not filled
 fetchMovies().then(() => {
   const checkAndLoad = () => {
     if (document.body.scrollHeight <= window.innerHeight) {
