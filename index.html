@@ -12,11 +12,18 @@
   <header class="top-menu">
     <img src="https://i.ibb.co/bMzZ1wYN/NEROFLIX-2-20-2025.png" alt="Logo" class="logo" />
     <div class="search-container">
-      <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
+      <input type="text" id="search" placeholder="Search movies, TV or anime..." onkeyup="debounceSearch()" />
     </div>
   </header>
 
-  <!-- Loading & Movie Grid -->
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="setActiveTab('movie')">Movies</button>
+    <button class="tab" onclick="setActiveTab('tv')">TV Series</button>
+    <button class="tab" onclick="setActiveTab('anime')">Anime</button>
+  </div>
+
+  <!-- Loading & Grid -->
   <p id="loading" class="loading">Loading...</p>
   <div id="movies" class="grid"></div>
   <p id="error" class="error"></p>
@@ -34,27 +41,5 @@
   </div>
 
   <script src="script.js"></script>
-  <script>
-    // Watch Now button: redirect to your proxy URL
-    document.getElementById("watchNow").addEventListener("click", () => {
-      const movieId = document.getElementById("watchNow").dataset.id;
-      window.location.href = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}`;
-    });
-
-    // Show movie details in modal
-    function openModal(movie) {
-      document.getElementById("modalTitle").innerText = movie.title;
-      document.getElementById("modalOverview").innerText = movie.overview;
-      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
-      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
-      const watchBtn = document.getElementById("watchNow");
-      watchBtn.dataset.id = movie.id;
-      document.getElementById("movieModal").style.display = "block";
-    }
-
-    function closeModal() {
-      document.getElementById("movieModal").style.display = "none";
-    }
-  </script>
 </body>
 </html>
