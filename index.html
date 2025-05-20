@@ -5,6 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Neroflix</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Responsive Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      background-color: rgba(0,0,0,0.8);
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .modal-content {
+      background: #111;
+      margin: auto;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 800px;
+      color: #fff;
+    }
+
+    .close {
+      color: #fff;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: red;
+    }
+
+    /* Responsive Video */
+    video {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .modal-content {
+        padding: 10px;
+      }
+
+      video {
+        max-height: 250px;
+      }
+
+      #modalTitle {
+        font-size: 18px;
+      }
+
+      .close {
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -21,38 +84,46 @@
   <div id="movies" class="grid"></div>
   <p id="error" class="error"></p>
 
-  <!-- Modal -->
+  <!-- Modal with Embedded Player -->
   <div id="movieModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <h2 id="modalTitle"></h2>
+
+      <video id="modalPlayer" controls autoplay>
+        <source id="videoSource" src="" type="application/x-mpegURL" />
+        Your browser does not support the video tag.
+      </video>
+
       <p id="modalOverview"></p>
       <p id="modalRelease"></p>
       <p id="modalRating"></p>
-      <button id="watchNow">Watch Now</button>
     </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Watch Now button: redirect to your proxy URL
-    document.getElementById("watchNow").addEventListener("click", () => {
-      const movieId = document.getElementById("watchNow").dataset.id;
-      window.location.href = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}`;
-    });
-
-    // Show movie details in modal
     function openModal(movie) {
       document.getElementById("modalTitle").innerText = movie.title;
       document.getElementById("modalOverview").innerText = movie.overview;
       document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
       document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
-      const watchBtn = document.getElementById("watchNow");
-      watchBtn.dataset.id = movie.id;
+
+      const videoUrl = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movie.id}`;
+      const videoSource = document.getElementById("videoSource");
+      const player = document.getElementById("modalPlayer");
+
+      videoSource.src = videoUrl;
+      player.load();
+      player.play();
+
       document.getElementById("movieModal").style.display = "block";
     }
 
     function closeModal() {
+      const player = document.getElementById("modalPlayer");
+      player.pause();
+      player.currentTime = 0;
       document.getElementById("movieModal").style.display = "none";
     }
   </script>
