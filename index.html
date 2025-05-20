@@ -5,6 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Neroflix</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Basic player styles */
+    #playerContainer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: black;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+    }
+    #videoPlayer {
+      max-width: 100%;
+      max-height: 90vh;
+      background: black;
+    }
+    #closePlayerBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #e50914;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
 
@@ -33,31 +61,87 @@
     </div>
   </div>
 
-  <!-- Embedded Player -->
-  <div id="playerContainer" style="display:none;">
-    <iframe id="videoFrame" allowfullscreen></iframe>
-    <button onclick="closePlayer()">Close Player</button>
+  <!-- Player Container with video element -->
+  <div id="playerContainer">
+    <video id="videoPlayer" controls autoplay></video>
+    <button id="closePlayerBtn">Close Player</button>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Watch Now button logic
-    document.getElementById("watchNow").addEventListener("click", () => {
+    const PROXY_URL = 'https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=';
+
+    // Watch Now button logic — fetch the ad-free stream URL, then load into video element
+    document.getElementById("watchNow").addEventListener("click", async () => {
       const movieId = document.getElementById("watchNow").dataset.id;
       const movieType = document.getElementById("watchNow").dataset.type;
 
-      const iframe = document.getElementById("videoFrame");
-      iframe.src = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}&type=${movieType}`;
-
+      // Hide modal
       document.getElementById("movieModal").style.display = "none";
-      document.getElementById("playerContainer").style.display = "flex";
+
+      // Show loading while fetching stream URL
+      document.getElementById("loading").style.display = "block";
+
+      try {
+        // Fetch the proxy HTML from your Cloudflare Worker
+        const res = await fetch(`${PROXY_URL}${movieId}&type=${movieType}`);
+        if (!res.ok) throw new Error("Failed to load video stream.");
+
+        const htmlText = await res.text();
+
+        // Parse the embed URL of the actual video stream from the returned HTML
+        // Assuming your worker returns the video page HTML with a <video> or <source> tag containing the actual stream URL.
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+
+        // Try to find the video src from <video> or <source> tags
+        let streamUrl = null;
+        const videoEl = doc.querySelector("video");
+        if (videoEl && videoEl.src) {
+          streamUrl = videoEl.src;
+        } else {
+          const sourceEl = doc.querySelector("source");
+          if (sourceEl && sourceEl.src) {
+            streamUrl = sourceEl.src;
+          } else {
+            // Fallback: try to find iframe src inside the proxy response HTML (if any)
+            const iframeEl = doc.querySelector("iframe");
+            if (iframeEl && iframeEl.src) {
+              streamUrl = iframeEl.src;
+            }
+          }
+        }
+
+        if (!streamUrl) {
+          throw new Error("Could not find video stream URL.");
+        }
+
+        // Hide loading
+        document.getElementById("loading").style.display = "none";
+
+        // Show player container
+        const playerContainer = document.getElementById("playerContainer");
+        playerContainer.style.display = "flex";
+
+        // Load video src into player and play
+        const videoPlayer = document.getElementById("videoPlayer");
+        videoPlayer.src = streamUrl;
+        videoPlayer.play();
+
+      } catch (error) {
+        document.getElementById("loading").style.display = "none";
+        alert(error.message || "Error loading video.");
+      }
     });
 
-    function closePlayer() {
-      const iframe = document.getElementById("videoFrame");
-      iframe.src = "";
-      document.getElementById("playerContainer").style.display = "none";
-    }
+    // Close player logic
+    document.getElementById("closePlayerBtn").addEventListener("click", () => {
+      const playerContainer = document.getElementById("playerContainer");
+      const videoPlayer = document.getElementById("videoPlayer");
+      videoPlayer.pause();
+      videoPlayer.src = "";
+      playerContainer.style.display = "none";
+    });
 
     // Show movie details in modal
     function openModal(movie) {
