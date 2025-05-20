@@ -2,35 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Neroflix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NeroFlix</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <input id="search" type="text" placeholder="Search movies..." oninput="debounceSearch()" />
-  <div id="movies"></div>
-  <div id="loading">Loading...</div>
-  <div id="error"></div>
+  <input type="text" id="search" placeholder="Search for a movie..." />
 
-  <!-- Movie Modal -->
-  <div id="movieModal" class="modal">
+  <div id="movies" class="movie-grid">
+    <!-- Movie cards will be inserted here by JavaScript -->
+  </div>
+
+  <!-- Modal for movie details and trailer -->
+  <div id="modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <p id="modalOverview"></p>
-      <p id="modalRelease"></p>
-      <p id="modalRating"></p>
+      <span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+      <h2 id="modalTitle">Movie Title</h2>
+      <p id="modalOverview">Movie overview will go here...</p>
+      <p id="modalRelease">Release Date: </p>
+      <p id="modalRating">Rating: </p>
+      <iframe id="modalTrailer" allowfullscreen></iframe>
       <button id="watchNow">Watch Now</button>
     </div>
   </div>
 
-  <!-- Player Modal -->
-  <div id="playerContainer" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closePlayer()">&times;</span>
-      <iframe id="videoFrame" allowfullscreen></iframe>
-    </div>
+  <!-- Fullscreen video player container -->
+  <div id="playerContainer" style="display: none;">
+    <iframe id="videoPlayer" allowfullscreen></iframe>
+    <button onclick="document.getElementById('playerContainer').style.display='none'">Close</button>
   </div>
+
+  <!-- Optional loading or error messages -->
+  <div class="loading" style="display: none;">Loading movies...</div>
+  <div class="error" style="display: none;">Something went wrong. Please try again.</div>
 
   <script src="script.js"></script>
 </body>
