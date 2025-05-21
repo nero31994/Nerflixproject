@@ -1,20 +1,24 @@
 const API_KEY = '488eb36776275b8ae18600751059fb49';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
-const PROXY_URL = 'https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=';
+const MOVIE_PROXY = 'https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=';
+const TV_PROXY = 'https://vidsrc.cc/v2/embed/tv/';
 
 let currentPage = 1;
 let currentQuery = '';
 let isFetching = false;
 let timeout = null;
+let currentMode = 'movie'; // or 'tv'
 
-async function fetchMovies(query = '', page = 1) {
+async function fetchContent(query = '', page = 1) {
   if (isFetching) return;
   isFetching = true;
   document.getElementById("loading").style.display = "block";
 
-  let url = query
-    ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
-    : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${page}`;
+  let endpoint = currentMode === 'movie' 
+    ? (query ? `search/movie` : `movie/popular`)
+    : (query ? `search/tv` : `tv/popular`);
+
+  const url = `https://api.themoviedb.org/3/${endpoint}?api_key=${API_KEY}&query=${query}&page=${page}`;
 
   try {
     const res = await fetch(url);
@@ -37,71 +41,77 @@ async function fetchMovies(query = '', page = 1) {
   }
 }
 
-function displayMovies(movies, clear = false) {
+function displayMovies(items, clear = false) {
   const moviesDiv = document.getElementById("movies");
   if (clear) moviesDiv.innerHTML = "";
 
-  movies.forEach(movie => {
-    if (!movie.poster_path) return;
+  items.forEach(item => {
+    if (!item.poster_path) return;
 
     const movieEl = document.createElement("div");
     movieEl.classList.add("movie");
     movieEl.innerHTML = `
-      <img src="${IMG_URL}${movie.poster_path}" alt="${movie.title || movie.name}" loading="lazy">
-      <div class="overlay">${movie.title || movie.name}</div>
+      <img src="${IMG_URL}${item.poster_path}" alt="${item.title || item.name}" loading="lazy">
+      <div class="overlay">${item.title || item.name}</div>
     `;
-    movieEl.onclick = () => openModal(movie);
+    movieEl.onclick = () => openModal(item);
     moviesDiv.appendChild(movieEl);
   });
 }
 
-function openModal(movie) {
-  document.getElementById("modalTitle").innerText = movie.title || movie.name;
-  document.getElementById("modalOverview").innerText = movie.overview;
-  document.getElementById("modalRelease").innerText = `Release: ${movie.release_date || 'N/A'}`;
-  document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average || 'N/A'}`;
+function openModal(item) {
+  document.getElementById("modalTitle").innerText = item.title || item.name;
+  document.getElementById("modalOverview").innerText = item.overview;
+  document.getElementById("modalRelease").innerText = `Release: ${item.release_date || item.first_air_date || 'N/A'}`;
+  document.getElementById("modalRating").innerText = `Rating: ${item.vote_average || 'N/A'}`;
   
   const iframe = document.getElementById("videoFrame");
-  iframe.src = `${PROXY_URL}${movie.id}`;
+  if (currentMode === 'movie') {
+    iframe.src = `${MOVIE_PROXY}${item.id}`;
+  } else {
+    iframe.src = `${TV_PROXY}${item.id}?autoPlay=false`;
+  }
 
   document.getElementById("movieModal").style.display = "flex";
 }
 
 function closeModal() {
   document.getElementById("movieModal").style.display = "none";
-  const iframe = document.getElementById("videoFrame");
-  iframe.src = "";
+  document.getElementById("videoFrame").src = "";
 }
 
 function debounceSearch() {
   clearTimeout(timeout);
   timeout = setTimeout(() => {
     const query = document.getElementById("search").value.trim();
-    if (query.length > 2) {
-      currentQuery = query;
-      currentPage = 1;
-      fetchMovies(currentQuery, currentPage);
-    } else if (query.length === 0) {
-      currentQuery = '';
-      currentPage = 1;
-      fetchMovies();
-    }
+    currentQuery = query;
+    currentPage = 1;
+    fetchContent(currentQuery, currentPage);
   }, 300);
 }
 
+function switchMode(mode) {
+  currentMode = mode;
+  currentQuery = '';
+  currentPage = 1;
+  document.getElementById("search").value = '';
+  fetchContent();
+}
+
+// Scroll loading
 window.addEventListener('scroll', () => {
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
     currentPage++;
-    fetchMovies(currentQuery, currentPage);
+    fetchContent(currentQuery, currentPage);
   }
 });
 
-// Initial fetch & auto-load more if page not filled
-fetchMovies().then(() => {
+// Initial fetch & auto-fill
+fetchContent().then(() => {
   const checkAndLoad = () => {
     if (document.body.scrollHeight <= window.innerHeight) {
       currentPage++;
-      fetchMovies(currentQuery, currentPage).then(checkAndLoad);
+      fetchContent(currentQuery, currentPage).then(checkAndLoad);
     }
   };
   checkAndLoad();
