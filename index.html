@@ -14,6 +14,10 @@
     <div class="search-container">
       <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
     </div>
+    <div class="tabs">
+      <button onclick="switchTab('movie')" id="tab-movie" class="active">Movies</button>
+      <button onclick="switchTab('tv')" id="tab-tv">TV Series</button>
+    </div>
   </header>
 
   <!-- Loading & Movie Grid -->
@@ -29,32 +33,96 @@
       <p id="modalOverview"></p>
       <p id="modalRelease"></p>
       <p id="modalRating"></p>
-      <button id="watchNow">Watch Now</button>
+      <iframe id="videoFrame" width="100%" height="360" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Watch Now button: redirect to your proxy URL
-    document.getElementById("watchNow").addEventListener("click", () => {
-      const movieId = document.getElementById("watchNow").dataset.id;
-      window.location.href = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}`;
-    });
+    let currentMediaType = 'movie'; // movie or tv
 
-    // Show movie details in modal
+    function switchTab(type) {
+      currentMediaType = type;
+      currentPage = 1;
+      currentQuery = '';
+      document.getElementById('search').value = '';
+      fetchMovies('', 1);
+
+      document.getElementById('tab-movie').classList.toggle('active', type === 'movie');
+      document.getElementById('tab-tv').classList.toggle('active', type === 'tv');
+    }
+
+    // Patch original debounceSearch to use currentMediaType
+    function debounceSearch() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const query = document.getElementById("search").value.trim();
+        if (query.length > 2) {
+          currentQuery = query;
+          currentPage = 1;
+          fetchMovies(currentQuery, currentPage);
+        } else if (query.length === 0) {
+          currentQuery = '';
+          currentPage = 1;
+          fetchMovies();
+        }
+      }, 300);
+    }
+
+    // Patch openModal to handle TV and movie links correctly
     function openModal(movie) {
-      document.getElementById("modalTitle").innerText = movie.title;
+      const title = movie.title || movie.name;
+      const release = movie.release_date || movie.first_air_date;
+      const rating = movie.vote_average || 'N/A';
+
+      document.getElementById("modalTitle").innerText = title;
       document.getElementById("modalOverview").innerText = movie.overview;
-      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
-      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
-      const watchBtn = document.getElementById("watchNow");
-      watchBtn.dataset.id = movie.id;
-      document.getElementById("movieModal").style.display = "block";
+      document.getElementById("modalRelease").innerText = `Release: ${release}`;
+      document.getElementById("modalRating").innerText = `Rating: ${rating}`;
+
+      const iframe = document.getElementById("videoFrame");
+
+      if (currentMediaType === 'movie') {
+        iframe.src = `https://vidsrc.to/embed/movie/${movie.id}`;
+      } else {
+        iframe.src = `https://vidsrc.cc/v2/embed/tv/${movie.id}?autoPlay=false`;
+      }
+
+      document.getElementById("movieModal").style.display = "flex";
     }
 
     function closeModal() {
       document.getElementById("movieModal").style.display = "none";
+      document.getElementById("videoFrame").src = "";
     }
   </script>
+
+  <style>
+    .tabs {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .tabs button {
+      padding: 5px 10px;
+      border: none;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      opacity: 0.6;
+    }
+
+    .tabs button.active {
+      background: #e50914;
+      opacity: 1;
+    }
+
+    iframe {
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+  </style>
 </body>
 </html>
