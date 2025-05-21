@@ -35,36 +35,26 @@
 
   <script src="script.js"></script>
   <script>
-  let currentItem = null; // Holds the current movie or TV item
-  let currentMode = 'movie'; // Track mode globally if needed
+    // Watch Now button: redirect to your proxy URL
+    document.getElementById("watchNow").addEventListener("click", () => {
+      const movieId = document.getElementById("watchNow").dataset.id;
+      window.location.href = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}`;
+    });
 
-  document.getElementById("watchNow").addEventListener("click", () => {
-    if (!currentItem) return;
-
-    const id = currentItem.id;
-    const isTV = currentItem.name !== undefined;
-
-    if (isTV) {
-      const season = 1;
-      const episode = 1;
-      window.location.href = `https://neroflixprox.arenaofvalorph937.workers.dev/proxy?id=${id}&s=${season}&e=${episode}`;
-    } else {
-      window.location.href = `https://neroflixprox.arenaofvalorph937.workers.dev/proxy?id=${id}`;
+    // Show movie details in modal
+    function openModal(movie) {
+      document.getElementById("modalTitle").innerText = movie.title;
+      document.getElementById("modalOverview").innerText = movie.overview;
+      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
+      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
+      const watchBtn = document.getElementById("watchNow");
+      watchBtn.dataset.id = movie.id;
+      document.getElementById("movieModal").style.display = "block";
     }
-  });
 
-  function openModal(item) {
-    currentItem = item;
-    document.getElementById("modalTitle").innerText = item.title || item.name;
-    document.getElementById("modalOverview").innerText = item.overview;
-    document.getElementById("modalRelease").innerText = `Release: ${item.release_date || item.first_air_date || 'N/A'}`;
-    document.getElementById("modalRating").innerText = `Rating: ${item.vote_average || 'N/A'}`;
-    document.getElementById("movieModal").style.display = "block";
-  }
-
-  function closeModal() {
-    document.getElementById("movieModal").style.display = "none";
-  }
-</script>
+    function closeModal() {
+      document.getElementById("movieModal").style.display = "none";
+    }
+  </script>
 </body>
 </html>
