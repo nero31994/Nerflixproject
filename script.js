@@ -54,12 +54,12 @@ function displayMovies(items, clear = false) {
       <img src="${IMG_URL}${item.poster_path}" alt="${item.title || item.name}" loading="lazy">
       <div class="overlay">${item.title || item.name}</div>
     `;
-    movieEl.onclick = () => openModal(item);
+    movieEl.onclick = () => openPlayer(movie);
     moviesDiv.appendChild(movieEl);
   });
 }
 
-function openModal(item) {
+function openPlayer(movie) {
   document.getElementById("modalTitle").innerText = item.title || item.name;
   document.getElementById("modalOverview").innerText = item.overview;
   document.getElementById("modalRelease").innerText = `Release: ${item.release_date || item.first_air_date || 'N/A'}`;
