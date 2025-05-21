@@ -14,6 +14,10 @@
     <div class="search-container">
       <input type="text" id="search" placeholder="Search movies or TV..." onkeyup="debounceSearch()" />
     </div>
+    <div class="tabs">
+      <button onclick="switchMode('movie')" id="movieTab" class="active">Movies</button>
+      <button onclick="switchMode('tv')" id="tvTab">TV Series</button>
+    </div>
   </header>
 
   <!-- Loading & Movie Grid -->
@@ -30,30 +34,47 @@
       <p id="modalRelease"></p>
       <p id="modalRating"></p>
       <button id="watchNow">Watch Now</button>
+      <iframe id="videoFrame" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Watch Now button: redirect to your proxy URL
+    // Watch Now button: redirect or load into iframe
     document.getElementById("watchNow").addEventListener("click", () => {
       const movieId = document.getElementById("watchNow").dataset.id;
-      window.location.href = `https://nerflixprox.arenaofvalorph937.workers.dev/proxy?id=${movieId}`;
+      const mode = window.currentMode || 'movie';
+
+      if (mode === 'movie') {
+        window.location.href = `https://vidora.su/embed/movie/${movieId}`;
+      } else {
+        window.location.href = `https://vidora.su/embed/tv/${movieId}`;
+      }
     });
 
     // Show movie details in modal
     function openModal(movie) {
-      document.getElementById("modalTitle").innerText = movie.title;
+      document.getElementById("modalTitle").innerText = movie.title || movie.name;
       document.getElementById("modalOverview").innerText = movie.overview;
-      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date}`;
-      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average}`;
+      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date || movie.first_air_date || 'N/A'}`;
+      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average || 'N/A'}`;
+      
       const watchBtn = document.getElementById("watchNow");
       watchBtn.dataset.id = movie.id;
-      document.getElementById("movieModal").style.display = "block";
+
+      const iframe = document.getElementById("videoFrame");
+      if (window.currentMode === 'movie') {
+        iframe.src = `https://vidora.su/embed/movie/${movie.id}`;
+      } else {
+        iframe.src = `https://vidora.su/embed/tv/${movie.id}`;
+      }
+
+      document.getElementById("movieModal").style.display = "flex";
     }
 
     function closeModal() {
       document.getElementById("movieModal").style.display = "none";
+      document.getElementById("videoFrame").src = "";
     }
   </script>
 </body>
