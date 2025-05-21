@@ -5,6 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Neroflix</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    #fullscreenPlayer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      display: none;
+    }
+
+    #fullscreenPlayer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #exitFullscreen {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 30px;
+      color: white;
+      cursor: pointer;
+      z-index: 10000;
+    }
+  </style>
 </head>
 <body>
 
@@ -25,57 +53,32 @@
   <div id="movies" class="grid"></div>
   <p id="error" class="error"></p>
 
-  <!-- Modal -->
-  <div id="movieModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <p id="modalOverview"></p>
-      <p id="modalRelease"></p>
-      <p id="modalRating"></p>
-      <button id="watchNow">Watch Now</button>
-      <iframe id="videoFrame" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
-    </div>
+  <!-- Fullscreen Player -->
+  <div id="fullscreenPlayer">
+    <iframe id="fullscreenIframe" allowfullscreen></iframe>
+    <span id="exitFullscreen" class="close">&times;</span>
   </div>
 
   <script src="script.js"></script>
   <script>
-    // Watch Now button: redirect or load into iframe
-    document.getElementById("watchNow").addEventListener("click", () => {
-      const movieId = document.getElementById("watchNow").dataset.id;
+    // Show movie directly in fullscreen iframe
+    function openPlayer(movie) {
+      const iframe = document.getElementById('fullscreenIframe');
       const mode = window.currentMode || 'movie';
+      iframe.src = mode === 'movie'
+        ? `https://vidora.su/embed/movie/${movie.id}`
+        : `https://vidora.su/embed/tv/${movie.id}`;
+      document.getElementById('fullscreenPlayer').style.display = 'block';
+    }
 
-      if (mode === 'movie') {
-        window.location.href = `https://vidora.su/movie/${movieId}`;
-      } else {
-        window.location.href = `https://vidora.su/tv/${movieId}`;
-      }
+    // Close fullscreen iframe
+    document.getElementById('exitFullscreen').addEventListener('click', () => {
+      document.getElementById('fullscreenPlayer').style.display = 'none';
+      document.getElementById('fullscreenIframe').src = '';
     });
 
-    // Show movie details in modal
-    function openModal(movie) {
-      document.getElementById("modalTitle").innerText = movie.title || movie.name;
-      document.getElementById("modalOverview").innerText = movie.overview;
-      document.getElementById("modalRelease").innerText = `Release: ${movie.release_date || movie.first_air_date || 'N/A'}`;
-      document.getElementById("modalRating").innerText = `Rating: ${movie.vote_average || 'N/A'}`;
-      
-      const watchBtn = document.getElementById("watchNow");
-      watchBtn.dataset.id = movie.id;
-
-      const iframe = document.getElementById("videoFrame");
-      if (window.currentMode === 'movie') {
-        iframe.src = `https://vidora.su/embed/movie/${movie.id}`;
-      } else {
-        iframe.src = `https://vidora.su/embed/tv/${movie.id}`;
-      }
-
-      document.getElementById("movieModal").style.display = "flex";
-    }
-
-    function closeModal() {
-      document.getElementById("movieModal").style.display = "none";
-      document.getElementById("videoFrame").src = "";
-    }
+    // Example call: openPlayer(movieObject)
+    // You need to replace openModal(movie) calls in script.js with openPlayer(movie)
   </script>
 </body>
 </html>
